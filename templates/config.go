@@ -4,6 +4,8 @@ package cuefig
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"cuelang.org/go/cue"
 	// "cuelang.org/go/cue/build"
@@ -15,17 +17,23 @@ import (
 
 var {{ .CONFIG.ConfigName }} map[string]interface{}
 
-const entrypoint = "{{ .CONFIG.Entrypoint }}"
-
-func Init() {
-	fmt.Println("reading cuefig:", entrypoint)
-}
+const {{ .CONFIG.ConfigName }}Filepath = "{{ .CONFIG.Entrypoint }}"
 
 func LoadDefault() (map[string]interface{}, error) {
-	return LoadConfig(entrypoint)
+	return LoadConfig({{ .CONFIG.ConfigName }}Filepath)
 }
 
 func LoadConfig(entry string) (map[string]interface{}, error) {
+
+	_, err := os.Lstat(DmaFilepath)
+	if err != nil {
+		if _, ok := err.(*os.PathError); !ok && ( strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file") ) {
+			// error is worse than non-existant
+			return nil, err
+		}
+		// otherwise, does not exist, so we should init
+		return nil, nil
+	}
 
 	var errs []error
 	cfg := map[string]interface{}{}
@@ -75,13 +83,6 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 
 			label := iter.Label()
 			value := iter.Value()
-			astr := ""
-			for attrKey, attrVal := range value.Attributes() {
-				str, _ := attrVal.String(0)
-				astr += attrKey + " : " + str + " | "
-			}
-
-			fmt.Println("  -", label, value, "--", astr)
 
 			// Now decode
 			val := map[string]interface{}{}
@@ -92,6 +93,20 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 			}
 
 			cfg[label] = val
+
+			/* XXX leave as example
+			fmt.Println("  -", label, value)
+			for attrKey, attrVal := range value.Attributes() {
+				fmt.Println("  --", attrKey)
+				for i := 0; i < 5; i++ {
+					str, err := attrVal.String(i)
+					if err != nil {
+					  break
+					}
+					fmt.Println("  ---", str)
+				}
+			}
+			*/
 
 		}
 
