@@ -55,11 +55,9 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 			}
 			continue
 		}
-		// R.CueInstances = append(R.CueInstances, I)
 
 		// Get top level value from cuelang
 		V := I.Value()
-		// R.TopLevelValues = append(R.TopLevelValues, V)
 
 		// Get top level struct from cuelang
 		S, err := V.Struct()
@@ -72,15 +70,18 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 			continue
 		}
 
-		l, b := V.Label()
-		fmt.Println("Cfg Field:", l, b)
-		// R.TopLevelStructs = append(R.TopLevelStructs, S)
 		iter := S.Fields()
 		for iter.Next() {
 
 			label := iter.Label()
 			value := iter.Value()
-			fmt.Println("  -", label, value)
+			astr := ""
+			for attrKey, attrVal := range value.Attributes() {
+				str, _ := attrVal.String(0)
+				astr += attrKey + " : " + str + " | "
+			}
+
+			fmt.Println("  -", label, value, "--", astr)
 
 			// Now decode
 			val := map[string]interface{}{}
