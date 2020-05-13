@@ -5,6 +5,7 @@ package cuefig
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -15,35 +16,40 @@ import (
 	"github.com/hofstadter-io/hof/lib/util"
 )
 
-var {{ .CONFIG.ConfigName }} map[string]interface{}
+var {{ .CONFIG.ConfigName }}Filepath string
 
-const {{ .CONFIG.ConfigName }}Filepath = "{{ .CONFIG.Entrypoint }}"
-
-func LoadDefault() (map[string]interface{}, error) {
-	return LoadConfig({{ .CONFIG.ConfigName }}Filepath)
+func init() {
+	cfgdir, err := os.UserConfigDir()
+	if err == nil {
+		{{ .CONFIG.ConfigName }}Filepath = filepath.Join(cfgdir, "{{ .CONFIG.Entrypoint }}")
+	} else {
+		{{ .CONFIG.ConfigName }}Filepath = "{{ .CONFIG.Entrypoint }}"
+	}
 }
 
-func LoadConfig(entry string) (map[string]interface{}, error) {
+func Load{{ .CONFIG.ConfigName }}Default(cfg interface{}) (cue.Value, error) {
+	return Load{{ .CONFIG.ConfigName }}Config({{.CONFIG.ConfigName}}Filepath, cfg)
+}
 
-	_, err := os.Lstat(DmaFilepath)
+func Load{{ .CONFIG.ConfigName }}Config(entry string, cfg interface{}) (val cue.Value, err error) {
+
+	_, err = os.Lstat({{ .CONFIG.ConfigName }}Filepath)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && ( strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file") ) {
 			// error is worse than non-existant
-			return nil, err
+			return val, err
 		}
-		// otherwise, does not exist, so we should init
-		return nil, nil
+		// otherwise, does not exist, so we should init?
+		// XXX want to let applications decide how to handle this
+		return val, err
 	}
 
 	var errs []error
-	cfg := map[string]interface{}{}
 
 	CueRT := &cue.Runtime{}
-
 	BIS := load.Instances([]string{entry}, nil)
-
-
 	for _, bi := range BIS {
+
 		if bi.Err != nil {
 			// fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
 		  es := errors.Errors(bi.Err)
@@ -67,48 +73,13 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 		// Get top level value from cuelang
 		V := I.Value()
 
-		// Get top level struct from cuelang
-		S, err := V.Struct()
+		err = V.Decode(&cfg)
 		if err != nil {
-			// fmt.Println("STRUCT ERR", err)
-		  es := errors.Errors(err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
+			errs = append(errs, err)
 			continue
 		}
 
-		iter := S.Fields()
-		for iter.Next() {
-
-			label := iter.Label()
-			value := iter.Value()
-
-			// Now decode
-			val := map[string]interface{}{}
-			err = value.Decode(&val)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			cfg[label] = val
-
-			/* XXX leave as example
-			fmt.Println("  -", label, value)
-			for attrKey, attrVal := range value.Attributes() {
-				fmt.Println("  --", attrKey)
-				for i := 0; i < 5; i++ {
-					str, err := attrVal.String(i)
-					if err != nil {
-					  break
-					}
-					fmt.Println("  ---", str)
-				}
-			}
-			*/
-
-		}
+		val = V
 
 	}
 
@@ -116,10 +87,8 @@ func LoadConfig(entry string) (map[string]interface{}, error) {
 		for _, e := range errs {
 			util.PrintCueError(e)
 		}
-		return nil, fmt.Errorf("Errors while reading DMA config file")
+		return val, fmt.Errorf("Errors while reading DMA config file")
 	}
 
-	{{ .CONFIG.ConfigName }} = cfg
-
-	return cfg, nil
+	return val, nil
 }

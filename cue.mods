@@ -1,3 +1,3 @@
 module github.com/hofstadter-io/hofmod-cuefig
 
-cue 0.1.1
+cue master

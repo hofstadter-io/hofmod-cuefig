@@ -7,8 +7,8 @@ import (
   "github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
-HofGenerator :: hof.HofGenerator & {
-  Config: schema.Config
+#HofGenerator: hof.#HofGenerator & {
+  Config: schema.#Config
   Outdir?: string
 
   In: {
@@ -19,8 +19,8 @@ HofGenerator :: hof.HofGenerator & {
 
   PackageName: "github.com/hofstadter-io/hofmod-cuefig"
 
-  // Files that are not repeatedly used, they are generated once for the whole CLI
-  _OnceFiles: [...hof.HofGeneratorFile] & [
+  // OnceFiles that are not repeatedly used, they are generated once for the whole generator input
+  _OnceFiles: [...hof.#HofGeneratorFile] & [
     {
       TemplateName:  "config.go"
       Filepath:  "\(Outdir)/lib/cuefig/\(In.CONFIG.Name).go"
