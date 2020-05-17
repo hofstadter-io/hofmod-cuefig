@@ -28,7 +28,6 @@ import (
 	// Default to sensative content
 	Sensative: bool | *true
 
-	// _ (any) schema
+	// User provided config schema
   ConfigSchema: {...}
-	ConfigDefault: ConfigSchema & {...}
 }

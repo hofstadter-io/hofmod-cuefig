@@ -23,7 +23,7 @@ import (
   _OnceFiles: [...hof.#HofGeneratorFile] & [
     {
       TemplateName:  "config.go"
-      Filepath:  "\(Outdir)/lib/cuefig/\(In.CONFIG.Name).go"
+      Filepath:  "\(Outdir)/cuefig/\(In.CONFIG.Name).go"
     },
   ]
 
