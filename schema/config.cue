@@ -4,13 +4,31 @@ import (
   "strings"
 )
 
+// A general configuration 
 #Config: {
   // binary name, often last part of Package
   Name: string
   configName: strings.ToCamel(Name)
   ConfigName: strings.ToTitle(Name)
 
-  Entrypoint: string
+	// Config location type
+	Location: *"local" | "user" | "system"
+	// Where the cue context starts
+	Workpath: string | *""
+	// Entrypoint from the Workpath
+  Entrypoint: string | *"\(configName).cue"
 
-  ConfigSchema: _
+	// Defaults to use when loading
+	Defaults: {
+		Expression: string | *""
+		Package: string | *""
+		LabelExprs: [...string] | *[]
+	}
+
+	// Default to sensative content
+	Sensative: bool | *true
+
+	// _ (any) schema
+  ConfigSchema: {...}
+	ConfigDefault: ConfigSchema & {...}
 }
