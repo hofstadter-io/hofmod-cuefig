@@ -12,7 +12,7 @@ import (
   ConfigName: strings.ToTitle(Name)
 
 	// Config location type
-	Location: *"local" | "user" | "system"
+	Location: *"local" | "user" | "cache" | "system"
 	// Where the cue context starts
 	Workpath: string | *""
 	// Entrypoint from the Workpath
