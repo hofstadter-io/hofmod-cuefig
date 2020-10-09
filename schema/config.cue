@@ -5,7 +5,7 @@ import (
 )
 
 // A general configuration 
-#Config: {
+_Config: {
   // binary name, often last part of Package
   Name: string
   configName: strings.ToCamel(Name)

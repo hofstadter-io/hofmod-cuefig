@@ -1,3 +1,9 @@
 module github.com/hofstadter-io/hofmod-cuefig
 
 cue master
+
+require (
+  github.com/hofstadter-io/hof v0.5.10
+)
+
+replace github.com/hofstadter-io/hof => ../../hof
