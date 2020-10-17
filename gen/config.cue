@@ -7,8 +7,8 @@ import (
   "github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
-_HofGenerator: hof.#HofGenerator & {
-  Config: schema._Config
+#HofGenerator: hof.#HofGenerator & {
+  Config: schema.#Config
   Outdir?: string
 
   In: {
@@ -28,5 +28,3 @@ _HofGenerator: hof.#HofGenerator & {
   ]
 
 }
-
-
