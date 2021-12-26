@@ -2,7 +2,7 @@ package gen
 
 import (
 
-  hof "github.com/hofstadter-io/hof/schema"
+  hof "github.com/hofstadter-io/hof/schema/gen"
 
   "github.com/hofstadter-io/hofmod-cuefig/schema"
 )
