@@ -15,14 +15,18 @@ import (
     CONFIG: Config
   }
 
-  Out: _OnceFiles
+	Out: [...hof.#HofGeneratorFile] & [
+		for _, F in OnceFiles { F },
+	]
 
   PackageName: "github.com/hofstadter-io/hofmod-cuefig"
 
+	Partials: []
+
   // OnceFiles that are not repeatedly used, they are generated once for the whole generator input
-  _OnceFiles: [...hof.#HofGeneratorFile] & [
+  OnceFiles: [...hof.#HofGeneratorFile] & [
     {
-      TemplateName:  "config.go"
+      TemplatePath:  "config.go"
       Filepath:  "\(Outdir)/cuefig/\(In.CONFIG.Name).go"
     },
   ]
